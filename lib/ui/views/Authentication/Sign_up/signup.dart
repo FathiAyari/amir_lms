@@ -1,5 +1,5 @@
-import 'dart:io';
-
+import 'package:amir/core/enums/api_responses.dart';
+import 'package:amir/core/services/auth_services.dart';
 import 'package:amir/ui/shared/app_colors.dart';
 import 'package:amir/ui/shared/dimensions/dimensions.dart';
 import 'package:amir/ui/widgets/buttons/action_button.dart';
@@ -16,15 +16,14 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   bool loading = false;
-  File? _image;
   bool check = false;
-  String _selectedItem = 'item_2';
+  String role = 'student';
 
   final _formkey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
   TextEditingController emailcontroller = TextEditingController();
-  TextEditingController gsmController = TextEditingController();
   TextEditingController passController = TextEditingController();
 
   @override
@@ -60,13 +59,22 @@ class _SignupScreenState extends State<SignupScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: 20),
                         child: InputField(
-                          label: "Nom et Prénom",
+                          label: "Nom",
                           controller: nameController,
                           textInputType: TextInputType.text,
                           prefixWidget: Icon(
                             Icons.account_circle_outlined,
                             color: pinkColor,
                           ),
+                        ),
+                      ),
+                      InputField(
+                        label: "Prénom",
+                        controller: lastNameController,
+                        textInputType: TextInputType.text,
+                        prefixWidget: Icon(
+                          Icons.account_circle_outlined,
+                          color: pinkColor,
                         ),
                       ),
                       InputField(
@@ -97,7 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             color: Colors.grey[200],
                           ),
                           child: DropdownButton<String>(
-                            value: _selectedItem,
+                            value: role,
                             underline: SizedBox(
                               height: 0,
                             ),
@@ -110,7 +118,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                     style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black38),
                                   ),
                                 ),
-                                value: 'item_1',
+                                value: 'student',
                               ),
                               DropdownMenuItem(
                                 child: Padding(
@@ -120,21 +128,58 @@ class _SignupScreenState extends State<SignupScreen> {
                                     style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic, color: Colors.black38),
                                   ),
                                 ),
-                                value: 'item_2',
+                                value: 'teacher',
                               ),
                             ],
                             onChanged: (value) {
                               setState(() {
-                                _selectedItem = value!;
+                                role = value!;
                               });
                             },
                           ),
                         ),
                       ),
                       loading
-                          ? CircularProgressIndicator()
+                          ? Padding(
+                              padding: EdgeInsets.symmetric(vertical: Constants.screenHeight * 0.01),
+                              child: Container(child: CircularProgressIndicator()),
+                            )
                           : ActionButton(
-                              label: "S\'inscrire", buttonColor: greenColor, labelColor: Colors.white, onPressed: () {})
+                              label: "S\'inscrire",
+                              buttonColor: greenColor,
+                              labelColor: Colors.white,
+                              onPressed: () {
+                                if (_formkey.currentState!.validate()) {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  AuthServices()
+                                      .SignUp(
+                                          name: nameController.text,
+                                          email: emailcontroller.text,
+                                          lastname: lastNameController.text,
+                                          password: passController.text,
+                                          role: role)
+                                      .then((value) {
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    if (value == ApiResponses.success) {
+                                      print("success");
+                                    } else if (value == ApiResponses.usedEmail) {
+                                      final snackBar =
+                                          new SnackBar(content: new Text("Email déja utilisé "), backgroundColor: Colors.pink);
+
+                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    } else {
+                                      final snackBar =
+                                          new SnackBar(content: new Text("Erreur est survenue"), backgroundColor: Colors.pink);
+
+                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    }
+                                  });
+                                }
+                              })
                     ],
                   )))),
     );

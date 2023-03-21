@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:amir/core/enums/api_responses.dart';
+import 'package:amir/core/services/auth_services.dart';
 import 'package:amir/ui/shared/app_colors.dart';
 import 'package:amir/ui/shared/dimensions/dimensions.dart';
 import 'package:amir/ui/views/on_boarding/on_boarding_controller.dart';
@@ -142,9 +144,42 @@ class _LoginScreenState extends State<SignInScreen> {
                           height: 20,
                         ),
                         isLoading
-                            ? CircularProgressIndicator()
+                            ? Padding(
+                                padding: EdgeInsets.symmetric(vertical: Constants.screenHeight * 0.01),
+                                child: Container(child: CircularProgressIndicator()),
+                              )
                             : ActionButton(
-                                label: "Connecter", buttonColor: greenColor, labelColor: Colors.white, onPressed: () {}),
+                                label: "Connecter",
+                                buttonColor: greenColor,
+                                labelColor: Colors.white,
+                                onPressed: () {
+                                  if (_formkey.currentState!.validate()) {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    AuthServices()
+                                        .SignIn(email: emailController.text, password: passwordController.text)
+                                        .then((value) {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                      if (value == ApiResponses.success) {
+                                        print(value);
+                                      } else if (value == ApiResponses.wrongCridentials) {
+                                        const snackBar = SnackBar(
+                                            content: Text("aucun utilisateur avec les informations d'identification fournies"),
+                                            backgroundColor: Colors.pink);
+
+                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                      } else if (value == ApiResponses.wrongPassword) {
+                                        const snackBar =
+                                            SnackBar(content: Text("Mot de passe incorrecte "), backgroundColor: Colors.pink);
+
+                                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                      }
+                                    });
+                                  }
+                                }),
                         Spacer(),
                         Container(
                             margin: EdgeInsets.symmetric(horizontal: 30),
