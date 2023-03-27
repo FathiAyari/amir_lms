@@ -63,7 +63,15 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
                 ),
                 loading
                     ? CircularProgressIndicator()
-                    : ActionButton(label: "Envoyer", buttonColor: greenColor, labelColor: Colors.white, onPressed: () {}),
+                    : ActionButton(
+                        label: "Envoyer",
+                        buttonColor: greenColor,
+                        labelColor: Colors.white,
+                        onPressed: () {
+                          if (_formkey.currentState!.validate()) {
+                            Navigator.pushNamed(context, '/otp');
+                          }
+                        }),
               ])))),
     );
   }

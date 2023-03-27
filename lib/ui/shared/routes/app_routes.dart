@@ -1,3 +1,5 @@
+import 'package:amir/ui/views/Authentication/Forgot_password/change_password_view.dart';
+import 'package:amir/ui/views/Authentication/Forgot_password/check_otp_view.dart';
 import 'package:amir/ui/views/Authentication/Forgot_password/forgotpass.dart';
 import 'package:amir/ui/views/Authentication/Sign_in/sign_in.dart';
 import 'package:amir/ui/views/splash_screen/splash_screen.dart';
@@ -12,6 +14,10 @@ class Routes {
         return MaterialPageRoute(builder: (_) => SignInScreen());
       case '/reset_password':
         return MaterialPageRoute(builder: (_) => ForgotPassScreen());
+      case '/otp':
+        return MaterialPageRoute(builder: (_) => CheckOtpView());
+      case '/change_password':
+        return MaterialPageRoute(builder: (_) => ChangePasswordView());
 
       default:
         return MaterialPageRoute(
